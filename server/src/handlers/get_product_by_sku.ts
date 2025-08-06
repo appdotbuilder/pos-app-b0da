@@ -1,9 +1,28 @@
 
+import { db } from '../db';
+import { productsTable } from '../db/schema';
 import { type Product } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function getProductBySku(sku: string): Promise<Product | null> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching a single product by its SKU from the database.
-    // Should return null if product is not found. Used for barcode scanning.
-    return null;
-}
+export const getProductBySku = async (sku: string): Promise<Product | null> => {
+  try {
+    const results = await db.select()
+      .from(productsTable)
+      .where(eq(productsTable.sku, sku))
+      .limit(1)
+      .execute();
+
+    if (results.length === 0) {
+      return null;
+    }
+
+    const product = results[0];
+    return {
+      ...product,
+      price: parseFloat(product.price) // Convert numeric field back to number
+    };
+  } catch (error) {
+    console.error('Product lookup by SKU failed:', error);
+    throw error;
+  }
+};
