@@ -144,39 +144,41 @@ export function UserManagement() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header Actions */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">System Users</h2>
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
+        <h2 className="text-base sm:text-lg font-semibold">System Users</h2>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>
-              ➕ Add User
+            <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="w-full sm:w-auto h-10">
+              <span className="sm:hidden">➕ Add</span>
+              <span className="hidden sm:inline">➕ Add User</span>
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="mx-4 max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-lg">
                 {editingUser ? 'Edit User' : 'Add New User'}
               </DialogTitle>
             </DialogHeader>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username" className="text-sm font-medium">Username</Label>
                 <Input
                   id="username"
                   value={formData.username}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setFormData((prev: CreateUserInput) => ({ ...prev, username: e.target.value }))
                   }
+                  className="h-10 text-base"
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -184,12 +186,13 @@ export function UserManagement() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setFormData((prev: CreateUserInput) => ({ ...prev, email: e.target.value }))
                   }
+                  className="h-10 text-base"
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">
+                <Label htmlFor="password" className="text-sm font-medium">
                   {editingUser ? 'New Password (leave blank to keep current)' : 'Password'}
                 </Label>
                 <Input
@@ -199,19 +202,20 @@ export function UserManagement() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setFormData((prev: CreateUserInput) => ({ ...prev, password: e.target.value }))
                   }
+                  className="h-10 text-base"
                   required={!editingUser}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role" className="text-sm font-medium">Role</Label>
                 <Select
                   value={formData.role || 'cashier'}
                   onValueChange={(value: UserRole) =>
                     setFormData((prev: CreateUserInput) => ({ ...prev, role: value }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10 text-base">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -223,19 +227,20 @@ export function UserManagement() {
               
               {error && (
                 <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription className="text-sm">{error}</AlertDescription>
                 </Alert>
               )}
               
-              <div className="flex justify-end space-x-2">
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end sm:space-x-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsDialogOpen(false)}
+                  className="h-10 text-base"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} className="h-10 text-base">
                   {isLoading ? 'Saving...' : (editingUser ? 'Update' : 'Create')}
                 </Button>
               </div>
@@ -246,57 +251,101 @@ export function UserManagement() {
 
       {/* Users Table */}
       <Card>
-        <CardContent>
+        <CardContent className="p-0 sm:p-6">
           {users.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 text-sm">
               No users available.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Username</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user: User) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.username}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user: User) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium text-sm">{user.username}</TableCell>
+                        <TableCell className="text-sm">{user.email}</TableCell>
+                        <TableCell>
+                          <Badge variant={user.role === 'admin' ? 'default' : 'secondary'} className="text-xs">
+                            {user.role.toUpperCase()}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm">{user.created_at.toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEdit(user)}
+                              className="text-xs"
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDelete(user.id)}
+                              className="text-xs"
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              
+              {/* Mobile Card View */}
+              <div className="sm:hidden space-y-3 p-3">
+                {users.map((user: User) => (
+                  <Card key={user.id} className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-sm leading-tight">{user.username}</h3>
+                          <p className="text-xs text-gray-500 mt-1">{user.email}</p>
+                          <p className="text-xs text-gray-500 mt-1">Created: {user.created_at.toLocaleDateString()}</p>
+                        </div>
+                        <Badge variant={user.role === 'admin' ? 'default' : 'secondary'} className="text-xs ml-2 shrink-0">
                           {user.role.toUpperCase()}
                         </Badge>
-                      </TableCell>
-                      <TableCell>{user.created_at.toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEdit(user)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDelete(user.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(user)}
+                          className="flex-1 text-xs h-8"
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDelete(user.id)}
+                          className="flex-1 text-xs h-8"
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

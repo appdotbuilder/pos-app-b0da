@@ -240,36 +240,36 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
       {/* Product Selection */}
-      <div className="space-y-4">
+      <div className="space-y-4 order-2 lg:order-1">
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
               <span>🔍</span>
               <span>Product Search</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Input
-              placeholder="Search by name, SKU, or barcode..."
+              placeholder="Search products..."
               value={searchTerm}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-              className="mb-4"
+              className="mb-4 h-10 text-base"
             />
             
-            <div className="max-h-96 overflow-y-auto space-y-2">
+            <div className="max-h-80 sm:max-h-96 overflow-y-auto space-y-2">
               {filteredProducts.map((product: Product) => (
                 <div
                   key={product.id}
-                  className="flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50"
+                  className="flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50 touch-manipulation"
                 >
-                  <div className="flex-1">
-                    <div className="font-medium">{product.name}</div>
-                    <div className="text-sm text-gray-500">
-                      SKU: {product.sku} | Stock: {product.stock_quantity}
+                  <div className="flex-1 min-w-0 mr-3">
+                    <div className="font-medium text-sm sm:text-base leading-tight">{product.name}</div>
+                    <div className="text-xs sm:text-sm text-gray-500 mt-1">
+                      {product.sku} • Stock: {product.stock_quantity}
                     </div>
-                    <div className="text-lg font-semibold text-green-600">
+                    <div className="text-base sm:text-lg font-semibold text-green-600 mt-1">
                       ${product.price.toFixed(2)}
                     </div>
                   </div>
@@ -277,13 +277,14 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
                     size="sm"
                     onClick={() => addToCart(product)}
                     disabled={product.stock_quantity === 0}
+                    className="shrink-0 h-9 text-sm min-w-[80px]"
                   >
-                    {product.stock_quantity === 0 ? 'Out of Stock' : '➕ Add'}
+                    {product.stock_quantity === 0 ? 'Out' : '➕ Add'}
                   </Button>
                 </div>
               ))}
               {filteredProducts.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-gray-500 text-sm">
                   No products found
                 </div>
               )}
@@ -293,22 +294,23 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
       </div>
 
       {/* Cart and Checkout */}
-      <div className="space-y-4">
+      <div className="space-y-4 order-1 lg:order-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
               <span>🛒</span>
               <span>Shopping Cart</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             {cart.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-gray-500 text-sm">
                 Cart is empty
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="max-h-64 overflow-y-auto">
+                {/* Desktop Table View */}
+                <div className="hidden sm:block max-h-64 overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -323,8 +325,8 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
                       {cart.map((item: CartItem) => (
                         <TableRow key={item.product.id}>
                           <TableCell>
-                            <div className="font-medium">{item.product.name}</div>
-                            <div className="text-sm text-gray-500">{item.product.sku}</div>
+                            <div className="font-medium text-sm">{item.product.name}</div>
+                            <div className="text-xs text-gray-500">{item.product.sku}</div>
                           </TableCell>
                           <TableCell>
                             <Input
@@ -335,16 +337,17 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 updateCartItemQuantity(item.product.id, parseInt(e.target.value) || 0)
                               }
-                              className="w-16"
+                              className="w-16 h-8 text-sm"
                             />
                           </TableCell>
-                          <TableCell>${item.unit_price.toFixed(2)}</TableCell>
-                          <TableCell>${item.total_price.toFixed(2)}</TableCell>
+                          <TableCell className="text-sm">${item.unit_price.toFixed(2)}</TableCell>
+                          <TableCell className="text-sm font-medium">${item.total_price.toFixed(2)}</TableCell>
                           <TableCell>
                             <Button
                               size="sm"
                               variant="destructive"
                               onClick={() => removeFromCart(item.product.id)}
+                              className="h-8 w-8 p-0"
                             >
                               ✕
                             </Button>
@@ -355,8 +358,49 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
                   </Table>
                 </div>
                 
+                {/* Mobile Card View */}
+                <div className="sm:hidden max-h-64 overflow-y-auto space-y-3">
+                  {cart.map((item: CartItem) => (
+                    <Card key={item.product.id} className="p-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1 min-w-0 mr-3">
+                          <h4 className="font-medium text-sm leading-tight">{item.product.name}</h4>
+                          <p className="text-xs text-gray-500">{item.product.sku}</p>
+                          <p className="text-sm text-gray-600">${item.unit_price.toFixed(2)} each</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => removeFromCart(item.product.id)}
+                          className="h-8 w-8 p-0 shrink-0"
+                        >
+                          ✕
+                        </Button>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-500">Qty:</span>
+                          <Input
+                            type="number"
+                            min="1"
+                            max={item.product.stock_quantity}
+                            value={item.quantity}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                              updateCartItemQuantity(item.product.id, parseInt(e.target.value) || 0)
+                            }
+                            className="w-16 h-9 text-base"
+                          />
+                        </div>
+                        <div className="font-semibold text-green-600">
+                          ${item.total_price.toFixed(2)}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+                
                 <div className="border-t pt-4">
-                  <div className="text-xl font-bold text-right">
+                  <div className="text-lg sm:text-xl font-bold text-right">
                     Total: ${calculateTotal().toFixed(2)}
                   </div>
                 </div>
@@ -367,25 +411,25 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
 
         {/* Checkout Form */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
               <span>💳</span>
               <span>Checkout</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Customer (Optional)</Label>
-              <div className="flex space-x-2">
+              <Label className="text-sm font-medium">Customer (Optional)</Label>
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Select
                   value={selectedCustomerId?.toString() || 'none'}
                   onValueChange={(value: string) => setSelectedCustomerId(value === 'none' ? null : parseInt(value))}
                 >
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Select customer (optional)" />
+                  <SelectTrigger className="flex-1 h-10 text-base">
+                    <SelectValue placeholder="Select customer" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No customer (Walk-in)</SelectItem>
+                    <SelectItem value="none">Walk-in</SelectItem>
                     {customers.map((customer: Customer) => (
                       <SelectItem key={customer.id} value={customer.id.toString()}>
                         {customer.name}
@@ -396,28 +440,29 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
                 
                 <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" className="sm:w-auto w-full h-10 text-base">
                       ➕ New
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="mx-4 max-w-md max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle>Add New Customer</DialogTitle>
+                      <DialogTitle className="text-lg">Add New Customer</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleCreateCustomer} className="space-y-4">
                       <div>
-                        <Label htmlFor="customer-name">Name</Label>
+                        <Label htmlFor="customer-name" className="text-sm font-medium">Name</Label>
                         <Input
                           id="customer-name"
                           value={newCustomer.name}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setNewCustomer((prev: CreateCustomerInput) => ({ ...prev, name: e.target.value }))
                           }
+                          className="h-10 text-base mt-1"
                           required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="customer-email">Email</Label>
+                        <Label htmlFor="customer-email" className="text-sm font-medium">Email</Label>
                         <Input
                           id="customer-email"
                           type="email"
@@ -425,23 +470,25 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setNewCustomer((prev: CreateCustomerInput) => ({ ...prev, email: e.target.value || null }))
                           }
+                          className="h-10 text-base mt-1"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="customer-phone">Phone</Label>
+                        <Label htmlFor="customer-phone" className="text-sm font-medium">Phone</Label>
                         <Input
                           id="customer-phone"
                           value={newCustomer.phone || ''}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setNewCustomer((prev: CreateCustomerInput) => ({ ...prev, phone: e.target.value || null }))
                           }
+                          className="h-10 text-base mt-1"
                         />
                       </div>
-                      <div className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={() => setIsCustomerDialogOpen(false)}>
+                      <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+                        <Button type="button" variant="outline" onClick={() => setIsCustomerDialogOpen(false)} className="h-10 text-base">
                           Cancel
                         </Button>
-                        <Button type="submit">Add Customer</Button>
+                        <Button type="submit" className="h-10 text-base">Add Customer</Button>
                       </div>
                     </form>
                   </DialogContent>
@@ -450,12 +497,12 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
             </div>
 
             <div className="space-y-2">
-              <Label>Payment Method</Label>
+              <Label className="text-sm font-medium">Payment Method</Label>
               <Select
                 value={paymentMethod}
                 onValueChange={(value: PaymentMethod) => setPaymentMethod(value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-10 text-base">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -468,17 +515,22 @@ export function SalesTransaction({ currentUser }: SalesTransactionProps) {
 
             {error && (
               <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription className="text-sm">{error}</AlertDescription>
               </Alert>
             )}
 
             <Button
               onClick={handleCompleteSale}
               disabled={cart.length === 0 || isLoading}
-              className="w-full"
-              size="lg"
+              className="w-full h-12 text-base font-semibold"
             >
-              {isLoading ? 'Processing...' : `Complete Sale - $${calculateTotal().toFixed(2)}`}
+              {isLoading ? 'Processing...' : 
+                <>
+                  <span className="hidden sm:inline">Complete Sale - </span>
+                  <span className="sm:hidden">Complete - </span>
+                  ${calculateTotal().toFixed(2)}
+                </>
+              }
             </Button>
           </CardContent>
         </Card>
